@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (toggled by the header button, persisted in localStorage). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens, modelled on the SaasAble admin dashboard (indigo primary, soft violet borders). */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #fbf8ff;
+  --line: #efedf4;
+  --fg: #1b1b1f;
+  --muted: #6b6b78;
+  --primary: #606bdf;
+  --primary-hover: #4e59cc;
+  --primary-soft: #e0e0ff;
+  --primary-ink: #3a44b5;
+  --success: #1e7e34;
+  --success-soft: #e3f4e8;
+  --danger: #c62828;
+  --danger-soft: #fdecea;
+  --warning: #9a6700;
+  --warning-soft: #fff4d6;
+}
+
+.dark {
+  --bg: #111114;
+  --surface: #18181d;
+  --surface-alt: #1d1d24;
+  --line: #2b2b35;
+  --fg: #ececf1;
+  --muted: #a0a0ae;
+  --primary: #606bdf;
+  --primary-hover: #7580ee;
+  --primary-soft: #2a2d5c;
+  --primary-ink: #aab1ff;
+  --success: #6fd48a;
+  --success-soft: #1b2f22;
+  --danger: #ff8a80;
+  --danger-soft: #3a1f1d;
+  --warning: #f5c451;
+  --warning-soft: #3a2f12;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --font-sans: var(--font-archivo), var(--font-noto-kr), "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
