@@ -1,7 +1,7 @@
 import type { ClientSession } from "mongoose";
 import { Todo, WeeklyPlan } from "@/lib/models";
 import { ApiError, notFound } from "@/lib/api";
-import { isWithinPeriod } from "@/lib/period";
+import { isFutureDate, isWithinPeriod } from "@/lib/period";
 import type { TodoStatus } from "@/lib/validation/schemas";
 import { withTx } from "@/lib/services/tx";
 
@@ -43,6 +43,15 @@ export async function assertTodoFitsPlan(userId: string, planId: string | null |
       "PERIOD_MISMATCH",
       `Todo date ${date} is outside the weekly plan period ${plan.startDate} ~ ${plan.endDate}`,
     );
+  }
+}
+
+/** Throws 400 FUTURE_DATE_NOT_ALLOWED when `date` is after today (server clock). */
+export function assertDateNotFuture(date: string | null | undefined) {
+  if (!date) return;
+  const today = new Date().toISOString().slice(0, 10);
+  if (isFutureDate(date, today)) {
+    throw new ApiError(400, "FUTURE_DATE_NOT_ALLOWED", "오늘 이후 날짜로는 할 일을 추가할 수 없습니다.");
   }
 }
 

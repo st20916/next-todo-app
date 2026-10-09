@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { setupTestDb } from "../helpers/db";
 import { call } from "../helpers/http";
 import * as todos from "@/app/api/todos/route";
@@ -8,6 +8,11 @@ import * as carry from "@/app/api/todos/carry-over/route";
 import * as plans from "@/app/api/weekly-plans/route";
 
 setupTestDb();
+
+// Fixture dates below are static ("2026-10-xx"); freeze "today" after all of them so the
+// future-date guard (FUTURE_DATE_NOT_ALLOWED) doesn't collide with move/carry-over tests.
+beforeAll(() => vi.setSystemTime(new Date("2026-12-01T00:00:00Z")));
+afterAll(() => vi.useRealTimers());
 
 const D = "2026-10-06";
 const mk = async (title: string, status = "todo", date = D, weeklyPlanId: string | null = null) =>

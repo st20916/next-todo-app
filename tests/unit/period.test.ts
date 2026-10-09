@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, isWithinPeriod } from "@/lib/period";
+import { addDays, isFutureDate, isWithinPeriod } from "@/lib/period";
 
 const start = "2026-10-05";
 const end = "2026-10-11";
@@ -22,4 +22,11 @@ describe("addDays", () => {
     expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
     expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
   });
+});
+
+describe("isFutureDate", () => {
+  const today = "2026-10-09";
+  it("rejects tomorrow", () => expect(isFutureDate("2026-10-10", today)).toBe(true));
+  it("accepts today", () => expect(isFutureDate(today, today)).toBe(false));
+  it("accepts yesterday", () => expect(isFutureDate("2026-10-08", today)).toBe(false));
 });

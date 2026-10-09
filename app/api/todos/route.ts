@@ -1,7 +1,7 @@
 import { Todo, WeeklyPlan } from "@/lib/models";
 import { assertId, json, parseBody, parseQuery, route } from "@/lib/api";
 import { todoCreateSchema, todoQuerySchema } from "@/lib/validation/schemas";
-import { assertTodoFitsPlan, bottomPosition } from "@/lib/services/todos";
+import { assertDateNotFuture, assertTodoFitsPlan, bottomPosition } from "@/lib/services/todos";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,7 @@ export const GET = route(async (req, _ctx, userId) => {
 export const POST = route(async (req, _ctx, userId) => {
   const input = await parseBody(req, todoCreateSchema);
   if (input.weeklyPlanId) assertId(input.weeklyPlanId);
+  assertDateNotFuture(input.date);
   await assertTodoFitsPlan(userId, input.weeklyPlanId, input.date);
 
   const date = input.date ?? null;

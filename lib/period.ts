@@ -14,3 +14,8 @@ export function addDays(date: string, days: number): string {
   const next = new Date(Date.UTC(y, m - 1, d + days));
   return next.toISOString().slice(0, 10);
 }
+
+/** Whether `date` is strictly after `today` (both `YYYY-MM-DD`, lexical = chronological). */
+export function isFutureDate(date: string, today: string): boolean {
+  return date > today;
+}

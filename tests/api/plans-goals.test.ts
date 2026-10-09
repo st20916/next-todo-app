@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { setupTestDb } from "../helpers/db";
 import { call } from "../helpers/http";
 import * as todos from "@/app/api/todos/route";
@@ -12,6 +12,11 @@ import * as goalById from "@/app/api/year-goals/[id]/route";
 import * as goalImpact from "@/app/api/year-goals/[id]/impact/route";
 
 setupTestDb();
+
+// Fixture dates below are static ("2026-10-xx"); freeze "today" after all of them so the
+// future-date guard (FUTURE_DATE_NOT_ALLOWED) doesn't collide with period/progress tests.
+beforeAll(() => vi.setSystemTime(new Date("2026-12-01T00:00:00Z")));
+afterAll(() => vi.useRealTimers());
 
 const goal = async () => (await call(goals.POST, "POST", { title: "G", year: 2026 })).body.id as string;
 const plan = async (yearGoalId: string | null = null, startDate = "2026-10-05", endDate = "2026-10-11") =>

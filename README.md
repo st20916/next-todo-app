@@ -71,7 +71,7 @@ npm run seed -- <email>        # (선택) 먼저 가입한 계정에 데모 데�
 | `/api/weekly-plans`, `/api/weekly-plans/:id`, `.../impact` | 주간 계획 CRUD와 삭제 영향 건수 |
 | `/api/year-goals`, `/api/year-goals/:id`, `.../impact` | 1년 목표 CRUD와 삭제 영향 건수 |
 
-오류 형식은 `{ "error": { "code": "...", "message": "..." } }` 입니다. 주요 코드: `VALIDATION_ERROR`(400), `PERIOD_MISMATCH`(400), `PERIOD_CONFLICT`(409, `count` 포함), `UNAUTHORIZED`(401), `EMAIL_TAKEN`(409), `INVALID_CREDENTIALS`(401), `NOT_FOUND`(404).
+오류 형식은 `{ "error": { "code": "...", "message": "..." } }` 입니다. 주요 코드: `VALIDATION_ERROR`(400), `PERIOD_MISMATCH`(400), `PERIOD_CONFLICT`(409, `count` 포함), `FUTURE_DATE_NOT_ALLOWED`(400, 오늘 이후 날짜로 할 일을 생성/수정 시도), `UNAUTHORIZED`(401), `EMAIL_TAKEN`(409), `INVALID_CREDENTIALS`(401), `NOT_FOUND`(404).
 
 ## 설계 메모
 

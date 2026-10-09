@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { setupTestDb } from "../helpers/db";
 import { call } from "../helpers/http";
 import * as todos from "@/app/api/todos/route";
@@ -7,6 +7,11 @@ import * as todoById from "@/app/api/todos/[id]/route";
 import * as plans from "@/app/api/weekly-plans/route";
 
 setupTestDb();
+
+// Fixture dates below are static ("2026-10-xx"/"2026-11-xx"); freeze "today" after all of
+// them so the future-date guard (FUTURE_DATE_NOT_ALLOWED) doesn't collide with period tests.
+beforeAll(() => vi.setSystemTime(new Date("2026-12-01T00:00:00Z")));
+afterAll(() => vi.useRealTimers());
 
 const week = { title: "W41", startDate: "2026-10-05", endDate: "2026-10-11" };
 const makePlan = async (extra = {}) => (await call(plans.POST, "POST", { ...week, ...extra })).body.id as string;
@@ -96,6 +101,36 @@ describe("period integrity (AC13)", () => {
   it("404 when the weekly plan does not exist", async () => {
     const res = await call(todos.POST, "POST", { title: "x", weeklyPlanId: "64b64b64b64b64b64b64b64b" });
     expect(res.status).toBe(404);
+  });
+});
+
+describe("future date is rejected", () => {
+  it("rejects creating a todo dated after today", async () => {
+    const res = await call(todos.POST, "POST", { title: "x", date: "2026-12-02" });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("FUTURE_DATE_NOT_ALLOWED");
+  });
+
+  it("accepts today and past dates, and no date at all", async () => {
+    expect((await call(todos.POST, "POST", { title: "today", date: "2026-12-01" })).status).toBe(201);
+    expect((await call(todos.POST, "POST", { title: "past", date: "2026-10-06" })).status).toBe(201);
+    expect((await call(todos.POST, "POST", { title: "none" })).status).toBe(201);
+  });
+
+  it("rejects moving an existing todo's date into the future", async () => {
+    const t = (await call(todos.POST, "POST", { title: "x", date: "2026-10-06" })).body;
+    const res = await call(todoById.PATCH, "PATCH", { date: "2026-12-02" }, t.id);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("FUTURE_DATE_NOT_ALLOWED");
+  });
+
+  it("does not re-check an unchanged date, even if it has since become future", async () => {
+    const t = (await call(todos.POST, "POST", { title: "x", date: "2026-12-01" })).body;
+    vi.setSystemTime(new Date("2026-11-25T00:00:00Z")); // "now" moved earlier than the stored date
+    const res = await call(todoById.PATCH, "PATCH", { title: "renamed" }, t.id);
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe("renamed");
+    vi.setSystemTime(new Date("2026-12-01T00:00:00Z"));
   });
 });
 

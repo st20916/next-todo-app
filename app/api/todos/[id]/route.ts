@@ -1,7 +1,7 @@
 import { Todo } from "@/lib/models";
 import { assertId, json, notFound, parseBody, route } from "@/lib/api";
 import { todoUpdateSchema } from "@/lib/validation/schemas";
-import { assertTodoFitsPlan, bottomPosition, renumberColumn } from "@/lib/services/todos";
+import { assertDateNotFuture, assertTodoFitsPlan, bottomPosition, renumberColumn } from "@/lib/services/todos";
 import { withTx } from "@/lib/services/tx";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +25,7 @@ export const PATCH = route<Ctx>(async (req, ctx, userId) => {
     const nextDate = input.date !== undefined ? input.date : todo.date;
     const nextPlan = input.weeklyPlanId !== undefined ? input.weeklyPlanId : todo.weeklyPlanId ? String(todo.weeklyPlanId) : null;
     const nextStatus = input.status ?? todo.status;
+    if (input.date !== undefined) assertDateNotFuture(input.date);
     await assertTodoFitsPlan(userId, nextPlan, nextDate);
 
     const columnChanged = nextDate !== todo.date || nextStatus !== todo.status;

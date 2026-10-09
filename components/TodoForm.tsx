@@ -2,9 +2,10 @@
 
 import { useState, type FormEvent } from "react";
 import { errorMessage, request, revalidateAll } from "@/lib/client/api";
+import { todayLocal } from "@/lib/client/dates";
 import { usePlans } from "@/lib/client/hooks";
 import type { TodoItem } from "@/lib/client/types";
-import { isWithinPeriod } from "@/lib/period";
+import { isFutureDate, isWithinPeriod } from "@/lib/period";
 import { btnCls, ErrorBanner, inputCls, Modal, primaryBtnCls } from "@/components/ui";
 
 export function TodoForm({
@@ -28,6 +29,8 @@ export function TodoForm({
 
   const selected = plans.find((p) => p.id === planId);
   const mismatch = selected && date && !isWithinPeriod(date, selected.startDate, selected.endDate);
+  const today = todayLocal();
+  const futureDate = !!date && isFutureDate(date, today);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -59,8 +62,9 @@ export function TodoForm({
         </label>
         <label className="block text-sm">
           날짜
-          <input type="date" className={inputCls} value={date} onChange={(e) => setDate(e.target.value)} />
+          <input type="date" className={inputCls} value={date} max={today} onChange={(e) => setDate(e.target.value)} />
         </label>
+        {futureDate && <p className="text-sm text-warning">오늘 이후 날짜는 선택할 수 없습니다.</p>}
         <label className="block text-sm">
           주간 계획
           <select className={inputCls} value={planId} onChange={(e) => setPlanId(e.target.value)}>
@@ -82,7 +86,7 @@ export function TodoForm({
           <button type="button" className={btnCls} onClick={onClose} disabled={busy}>
             취소
           </button>
-          <button type="submit" className={primaryBtnCls} disabled={busy || !title.trim() || !!mismatch}>
+          <button type="submit" className={primaryBtnCls} disabled={busy || !title.trim() || !!mismatch || futureDate}>
             {todo ? "저장" : "추가"}
           </button>
         </div>
